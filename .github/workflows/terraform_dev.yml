@@ -12,14 +12,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build and Start LocalStack Container
-        run: |
-          docker compose up -d
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: latest
+
+      - name: Start LocalStack container
+        run: |
+          docker compose -f terraform/dev/docker-compose.yml up -d
 
       - name: Wait for LocalStack
         run: |
@@ -33,12 +36,12 @@ jobs:
       - name: Terraform Init
         run: terraform -chdir=terraform/dev init -input=false
 
-      - name: Terraform Plan (Dev)
+      - name: Terraform Plan
         run: terraform -chdir=terraform/dev plan -out=tfplan
 
-      - name: Terraform Apply (Dev)
+      - name: Terraform Apply
         run: terraform -chdir=terraform/dev apply -auto-approve -input=false
 
-      - name: Terraform Destroy (Dev)
+      - name: Terraform Destroy
         if: always()
         run: terraform -chdir=terraform/dev destroy -auto-approve -input=false
