@@ -1,0 +1,44 @@
+name: Terraform Dev (LocalStack)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform-dev:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and Start LocalStack Container
+        run: |
+          docker compose up -d
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
+      - name: Wait for LocalStack
+        run: |
+          echo "Waiting for LocalStack services..."
+          until curl -s http://localhost:4566/_localstack/health | jq -e '.services.s3 == "available"' > /dev/null; do
+            echo "LocalStack not ready yet..."
+            sleep 2
+          done
+          echo "LocalStack is ready!"
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/dev init -input=false
+
+      - name: Terraform Plan (Dev)
+        run: terraform -chdir=terraform/dev plan -out=tfplan
+
+      - name: Terraform Apply (Dev)
+        run: terraform -chdir=terraform/dev apply -auto-approve -input=false
+
+      - name: Terraform Destroy (Dev)
+        if: always()
+        run: terraform -chdir=terraform/dev destroy -auto-approve -input=false
