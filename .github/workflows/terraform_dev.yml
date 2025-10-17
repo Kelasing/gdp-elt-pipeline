@@ -15,6 +15,11 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
       - name: Start LocalStack container
         run: |
           docker compose -f terraform/dev/docker-compose.yml up -d
