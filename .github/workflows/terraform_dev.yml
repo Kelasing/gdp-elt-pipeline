@@ -12,16 +12,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq docker.io docker-compose
+
       - name: Build and Start LocalStack Container
         run: |
-          docker compose up -d
+          docker compose -f terraform/dev/docker-compose.yml up -d
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: latest
-
-      - name: Wait for LocalStack
+      - name: Wait for LocalStack S3
         run: |
           echo "Waiting for LocalStack services..."
           until curl -s http://localhost:4566/_localstack/health | jq -e '.services.s3 == "available"' > /dev/null; do
@@ -29,6 +29,11 @@ jobs:
             sleep 2
           done
           echo "LocalStack is ready!"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
 
       - name: Terraform Init
         run: terraform -chdir=terraform/dev init -input=false
