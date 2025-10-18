@@ -28,23 +28,26 @@ jobs:
         run: terraform -chdir=infra/terraform/env/prod init -input=false
 
       - name: Terraform Plan (Prod)
-        run: terraform -chdir=infra/terraform/env/prod plan -out=tfplan \
-              -var="env=${{ vars.ENV }}" \
-              -var="region=${{ vars.AWS_REGION_US_WEST_2 }}" \
-              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
-              -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        run: |
+          terraform -chdir=infra/terraform/env/prod plan -out=tfplan \
+            -var="env=${{ vars.ENV }}" \
+            -var="region=${{ vars.AWS_REGION_US_WEST_2 }}" \
+            -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+            -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Terraform Apply (Prod)
-        run: terraform -chdir=infra/terraform/env/prod apply -auto-approve -input=false \
-              -var="env=${{ vars.ENV }}" \
-              -var="region=${{ vars.AWS_REGION_US_WEST_2 }}" \
-              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
-              -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        run: |
+          terraform -chdir=infra/terraform/env/prod apply -auto-approve -input=false \
+            -var="env=${{ vars.ENV }}" \
+            -var="region=${{ vars.AWS_REGION_US_WEST_2 }}" \
+            -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+            -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Terraform Destroy (Prod)
         if: always()
-        run: terraform -chdir=infra/terraform/env/prod destroy -auto-approve -input=false \
-              -var="env=${{ vars.ENV }}" \
-              -var="region=${{ vars.AWS_REGION_US_WEST_2 }}" \
-              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
-              -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        run: |
+          terraform -chdir=infra/terraform/env/prod destroy -auto-approve -input=false \
+            -var="env=${{ vars.ENV }}" \
+            -var="region=${{ vars.AWS_REGION_US_WEST_2 }}" \
+            -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+            -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
