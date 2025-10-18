@@ -22,7 +22,7 @@ jobs:
 
       - name: Start LocalStack container
         run: |
-          docker compose -f terraform/dev/docker-compose.yml up -d
+          docker compose -f terraform/env/dev/docker-compose.yml up -d
 
       - name: Wait for LocalStack
         run: |
@@ -34,14 +34,26 @@ jobs:
           echo "LocalStack is ready!"
 
       - name: Terraform Init
-        run: terraform -chdir=terraform/dev init -input=false
+        run: terraform -chdir=terraform/env/dev init -input=false
 
       - name: Terraform Plan
-        run: terraform -chdir=terraform/dev plan -out=tfplan
+        run: terraform -chdir=terraform/env/dev plan -out=tfplan \
+              -var="env=${{ env.ENV }}" \
+              -var="region=${{ env.AWS_REGION_US_WEST_2 }}" \
+              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+              -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Terraform Apply
-        run: terraform -chdir=terraform/dev apply -auto-approve -input=false
+        run: terraform -chdir=terraform/env/dev apply -auto-approve -input=false \
+              -var="env=${{ env.ENV }}" \
+              -var="region=${{ env.AWS_REGION_US_WEST_2 }}" \
+              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+              -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Terraform Destroy
         if: always()
-        run: terraform -chdir=terraform/dev destroy -auto-approve -input=false
+        run: terraform -chdir=terraform/env/dev destroy -auto-approve -input=false \
+              -var="env=${{ env.ENV }}" \
+              -var="region=${{ env.AWS_REGION_US_WEST_2 }}" \
+              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+              -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"

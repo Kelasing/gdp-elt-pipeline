@@ -3,7 +3,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DOCKER_COMPOSE_FILE="$PROJECT_ROOT/terraform/dev/docker-compose.yml"
+DOCKER_COMPOSE_FILE="$PROJECT_ROOT/terraform/env/dev/docker-compose.yml"
 REQUIRED_SERVICES=("s3" "sqs" "sns" "lambda" "events")
 MAX_WAIT=120
 
@@ -62,7 +62,7 @@ done
 wait_for_services
 
 # Apply Terraform
-terraform -chdir="$PROJECT_ROOT/terraform/dev/" init -input=false
-terraform -chdir="$PROJECT_ROOT/terraform/dev/" apply -auto-approve -input=false
+terraform -chdir="$PROJECT_ROOT/terraform/env/dev/" init -input=false
+terraform -chdir="$PROJECT_ROOT/terraform/env/dev/" apply -auto-approve -input=false
 
 echo "Infrastructure applied successfully!"

@@ -6,7 +6,7 @@ on:
 jobs:
   terraform-prod:
     runs-on: ubuntu-latest
-    environment: dev
+    environment: prod
 
     steps:
       - name: Checkout repository
@@ -15,9 +15,9 @@ jobs:
       - name: Setup AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
+          aws-region: ${{ env.AWS_REGION_US_WEST_2 }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -25,26 +25,26 @@ jobs:
           terraform_version: latest
 
       - name: Terraform Init
-        run: terraform -chdir=terraform/prod init -input=false
+        run: terraform -chdir=terraform/env/prod init -input=false
 
       - name: Terraform Plan (Prod)
-        run: terraform -chdir=terraform/prod plan -out=tfplan \
-              -var="env=prod" \
-              -var="region=us-west-2" \
-              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-              -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        run: terraform -chdir=terraform/env/prod plan -out=tfplan \
+              -var="env=${{ env.ENV }}" \
+              -var="region=${{ env.AWS_REGION_US_WEST_2 }}" \
+              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+              -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Terraform Apply (Prod)
-        run: terraform -chdir=terraform/prod apply -auto-approve -input=false \
-              -var="env=prod" \
-              -var="region=us-west-2" \
-              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-              -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        run: terraform -chdir=terraform/env/prod apply -auto-approve -input=false \
+              -var="env=${{ env.ENV }}" \
+              -var="region=${{ env.AWS_REGION_US_WEST_2 }}" \
+              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+              -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Terraform Destroy (Prod)
         if: always()
-        run: terraform -chdir=terraform/prod destroy -auto-approve -input=false \
-              -var="env=prod" \
-              -var="region=us-west-2" \
-              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-              -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        run: terraform -chdir=terraform/env/prod destroy -auto-approve -input=false \
+              -var="env=${{ env.ENV }}" \
+              -var="region=${{ env.AWS_REGION_US_WEST_2 }}" \
+              -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+              -var="aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
