@@ -1,0 +1,16 @@
+services:
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    environment:
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SERVICES=s3,sqs,sns,lambda,events
+      - DEFAULT_REGION=us-west-2
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock" # Required for Lambda
+    security_opt:
+      - no-new-privileges:true
